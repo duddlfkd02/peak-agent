@@ -20,11 +20,10 @@ export default function SearchInput({ onSearch, onUpload }: SearchInputProps) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative mx-auto w-full">
       <Input
-        placeholder="회사소개서를 업로드 하거나, 궁금한 내용을 입력해보세요. 
-      "
-        className="h-32 border border-primary bg-foreground text-white placeholder:text-white"
+        placeholder="회사소개서를 업로드 하거나, 궁금한 내용을 입력해보세요."
+        className="m min-h-[100px] whitespace-pre-wrap break-words border border-primary bg-foreground pb-10 text-sm text-muted placeholder:text-muted sm:text-base"
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
