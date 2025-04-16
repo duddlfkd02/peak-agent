@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# PEAK Agent
 
-## Getting Started
+## PEAK Agent Servie
 
-First, run the development server:
+AI 에이전트를 이용하여 기업 정보를 자동으로 수집, 요약, 질문 생성, 추천까지 제공하는 B2B 서비스
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| **프레임워크 / 라이브러리**     | **버전**            |
+| ------------------------------- | ------------------- |
+| Next.js                         | 14.2.4 (App Router) |
+| React                           | 18.3.1              |
+| Tailwind                        | 3.4.1 고정          |
+| Zustand, Lucide, Tailwind Merge |                     |
+| shadcn                          |                     |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+⭐️ 작업 진행하면서 변경될 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+레퍼런스 : PEAK 기획 슬라이드, 기존 PEAK 피그마 ui, oo.ai 사이트
 
-## Learn More
+### 검색
 
-To learn more about Next.js, take a look at the following resources:
+- 파일 아이콘 클릭 시 pdf 파일을 업로드 할 수 있습니다.
+- 비행기 아이콘 (보내기 버튼) 클릭 시 프롬프트 창으로 이동합니다.
+- 배경 색상은 peak 프롬프트 색과 통일하였으나 추후 oo.ai처럼 그라데이션 요소를 넣어볼 예정입니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 에이전트 프롬프트 창
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- 공유 받은 슬라이드 기반으로 작업할 예정이며 간단한 아이콘 정도만 변경하였습니다.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+READ.ME 업데이트 : 25.04.16
