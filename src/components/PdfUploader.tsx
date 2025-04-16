@@ -21,7 +21,7 @@ export default function PdfUploader({ onUpload }: PdfUploaderProps) {
   };
   return (
     <>
-      <Button size="icon" onClick={handleIconClick} className="text-muted-foreground hover:text-white">
+      <Button size="icon" onClick={handleIconClick} className="text-white">
         <FileUp className="h-5 w-5" />
         <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" ref={fileInputRef} />
       </Button>

@@ -20,17 +20,23 @@ export default function SearchInput({ onSearch, onUpload }: SearchInputProps) {
   };
 
   return (
-    <div>
+    <div className="relative w-full">
       <Input
         placeholder="회사소개서를 업로드 하거나, 궁금한 내용을 입력해보세요. 
       "
+        className="h-32 border border-primary bg-foreground text-white placeholder:text-white"
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
-      <PdfUploader onUpload={onUpload} />
-      <Button onClick={handleSubmit} size="icon" variant="default">
-        <SendHorizonal className="h-4 w-4" />
-      </Button>
+      <div className="flex gap-2">
+        <div className="absolute bottom-4 right-16 text-white">
+          <PdfUploader onUpload={onUpload} />
+        </div>
+
+        <Button onClick={handleSubmit} size="icon" variant="default" className="absolute bottom-4 right-4 text-white">
+          <SendHorizonal className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 }

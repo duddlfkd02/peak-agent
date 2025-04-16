@@ -36,8 +36,8 @@ export default function SearchPage() {
   };
 
   return (
-    <main className="m-6">
-      <h1 className="mb-4 text-2xl font-bold">PEAK Agent에게 무엇이든 물어보세요</h1>
+    <main className="m-6 flex flex-col items-center justify-center">
+      <h1 className="mb-4 text-2xl text-white">PEAK Agent에게 무엇이든 물어보세요</h1>
       <SearchInput onSearch={handleSearch} onUpload={handleUpload} />
     </main>
   );
