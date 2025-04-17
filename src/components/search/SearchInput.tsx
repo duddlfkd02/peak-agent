@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { SendHorizonal } from "lucide-react";
+import { Send } from "lucide-react";
 
 import PdfUploader from "../common/PdfUploader";
 
@@ -14,11 +14,11 @@ interface SearchInputProps {
 }
 
 export default function SearchInput({ onSearch, onUpload }: SearchInputProps) {
-  const [input, setInput] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = () => {
-    onSearch(input);
-    setInput("");
+    onSearch(message);
+    setMessage("");
   };
 
   return (
@@ -26,14 +26,14 @@ export default function SearchInput({ onSearch, onUpload }: SearchInputProps) {
       <Textarea
         placeholder="회사소개서를 업로드 하거나, 궁금한 내용을 입력해보세요."
         className="min-h-[120px] w-full resize-none overflow-hidden whitespace-pre-wrap break-words border border-primary bg-foreground pr-24 text-sm text-muted placeholder:text-muted sm:text-base"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
       />
 
       <div className="absolute bottom-4 right-4 flex items-center gap-2">
         <PdfUploader onUpload={onUpload} />
         <Button onClick={handleSubmit} size="icon" variant="default" className="text-white">
-          <SendHorizonal className="h-5 w-5" />
+          <Send className="h-5 w-5" />
         </Button>
       </div>
     </div>
