@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SendHorizonal } from "lucide-react";
-import PdfUploader from "./PdfUploader";
+
+import PdfUploader from "../common/PdfUploader";
 
 interface SearchInputProps {
   onSearch: (query: string) => void;

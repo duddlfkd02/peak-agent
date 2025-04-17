@@ -1,8 +1,9 @@
 "use client";
 
 import { useSearchStore } from "@/store/useSearchStore";
-import SearchInput from "@/components/SearchInput";
+
 import { useRouter } from "next/navigation";
+import SearchInput from "./SearchInput";
 
 export default function SearchPage() {
   const { setSearchText, setPdfSummary } = useSearchStore();

@@ -1,6 +1,6 @@
 "use client";
 
-import SearchPage from "@/components/SearchPage";
+import SearchPage from "@/components/search/SearchPage";
 
 export default function SearchPageRoute() {
   return (

@@ -1,5 +1,14 @@
-import AgentPage from "@/components/AgentPage";
+"use client";
+
+import AgentPage from "@/components/agent/AgentPage";
+import { useSearchStore } from "@/store/useSearchStore";
 
 export default function AgentPageRoute() {
-  return <AgentPage />;
+  const addPdf = useSearchStore((state) => state.addPdf);
+
+  const handleUpload = (file: File) => {
+    addPdf(file);
+  };
+
+  return <AgentPage onUpload={handleUpload} />;
 }

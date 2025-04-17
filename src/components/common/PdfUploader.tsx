@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { FileUp } from "lucide-react";
 import { useRef } from "react";
 
-interface PdfUploaderProps {
+export interface PdfUploaderProps {
   onUpload: (file: File) => void;
 }
 
