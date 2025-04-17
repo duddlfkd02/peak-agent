@@ -9,7 +9,7 @@ export default function AgentDataSection({ onUpload }: PdfUploaderProps) {
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center rounded-lg bg-foreground p-4">
-      <h2 className="w-full text-left md:text-lg">Data</h2>
+      <h2 className="mb-4 w-full text-left md:text-lg">Data</h2>
       <div className="flex w-fit cursor-pointer items-center justify-center rounded-full bg-primary px-3 py-1 text-sm text-white">
         소스 추가하기
         <PdfUploader onUpload={onUpload} />
