@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import SearchInput from "./SearchInput";
 
 export default function SearchPage() {
-  const { setSearchText, setPdfSummary } = useSearchStore();
+  const { setSearchText, setPdfSummary, addPdf } = useSearchStore();
   const router = useRouter();
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -35,6 +35,7 @@ export default function SearchPage() {
     const result = await response.json();
     console.log("요약 결과", result.analysis);
     setPdfSummary(result.analysis);
+    addPdf(file);
     router.push("/agent");
   };
 

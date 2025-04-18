@@ -98,10 +98,10 @@ export default function AgentChatSection() {
     }
   };
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col rounded-lg bg-foreground p-4">
+    <div className="flex flex-col rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">Agent</h2>
 
-      <div ref={messageEndRef} className="flex-1 space-y-4 overflow-y-auto rounded p-4">
+      <div ref={messageEndRef} className="flex-1 space-y-4 overflow-y-auto rounded p-4 sm:text-sm">
         {pdfSummary ? <div className="text-white">{generateCompanyIntro(pdfSummary)}</div> : "요약 정보가 없습니다."}
         {pdfSummary && (
           <Button className="mt-4 w-fit border bg-transparent text-white" onClick={handleFindLeads}>
