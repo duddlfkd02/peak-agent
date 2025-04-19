@@ -85,16 +85,43 @@ export default function AgentChatSection() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!message.trim()) return;
     setMessages((prev) => [...prev, message]);
     setMessage("");
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/lead/details/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ search_company_name: message, company_id: 94 })
+      });
+
+      if (!response.ok) throw new Error("리드 상세 요청 실패");
+
+      const html = await response.text();
+
+      // 새 창 열기
+      const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);
+
+      if (popup) {
+        popup.document.open();
+        popup.document.write(html);
+        popup.document.close();
+      } else {
+        setMessages((prev) => [...prev, "팝업을 차단했거나 새 창을 열 수 없습니다."]);
+      }
+    } catch (error) {
+      console.error("리드 상세 요청 에러:", error);
+      setMessages((prev) => [...prev, "리드 상세 요청 에러"]);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
+      setMessage("");
     }
   };
   return (
