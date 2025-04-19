@@ -125,10 +125,10 @@ export default function AgentChatSection() {
     }
   };
   return (
-    <div className="flex flex-col rounded-lg bg-foreground p-4">
+    <div className="flex h-[calc(100vh-80px)] flex-col rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">Agent</h2>
 
-      <div ref={messageEndRef} className="flex-1 space-y-4 overflow-y-auto rounded p-4 sm:text-sm">
+      <div ref={messageEndRef} className="flex-1 overflow-y-auto rounded p-4 sm:text-sm">
         {pdfSummary ? <div className="text-white">{generateCompanyIntro(pdfSummary)}</div> : "요약 정보가 없습니다."}
         {pdfSummary && (
           <Button className="mt-4 w-fit border bg-transparent text-white" onClick={handleFindLeads}>
@@ -136,27 +136,25 @@ export default function AgentChatSection() {
           </Button>
         )}
 
-        <div>
-          {leads.length > 0 && (
-            <div className="mt-6">
-              <h3 className="bold mb-2 text-white">추천 리드</h3>
-              <ul className="space-y-2">
-                {leads.map((lead, index) => (
-                  <li key={index} className="rounded bg-darkgray p-3 text-white">
-                    <p>회사명: {lead.company}</p>
-                    <p>산업군: {lead.industry}</p>
-                    <p>홈페이지: {lead.homepage}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {messages.map((msg, index) => (
-            <div key={index} className="rounded px-4 py-2 text-right text-white">
-              {msg}
-            </div>
-          ))}
-        </div>
+        {leads.length > 0 && (
+          <div className="mt-6">
+            <h3 className="bold mb-2 text-white">추천 리드</h3>
+            <ul className="space-y-2">
+              {leads.map((lead, index) => (
+                <li key={index} className="rounded bg-darkgray p-3 text-white">
+                  <p>회사명: {lead.company}</p>
+                  <p>산업군: {lead.industry}</p>
+                  <p>홈페이지: {lead.homepage}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {messages.map((msg, index) => (
+          <div key={index} className="rounded px-4 py-2 text-right text-white">
+            {msg}
+          </div>
+        ))}
       </div>
 
       {/* 채팅 입력창 영역 */}
