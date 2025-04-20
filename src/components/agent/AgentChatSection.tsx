@@ -6,11 +6,13 @@ import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSearchStore } from "@/store/useSearchStore";
 import { pdfSummary } from "@/types/pdfSummary";
+import SkeletonLoader from "../common/SkeletonLoader";
 
 export default function AgentChatSection() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
+  const [isloading, setIsLoading] = useState(false);
 
   const messageEndRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +92,8 @@ export default function AgentChatSection() {
     setMessages((prev) => [...prev, message]);
     setMessage("");
 
+    setIsLoading(true);
+
     try {
       const response = await fetch(`${BASE_URL}/api/lead/details/`, {
         method: "POST",
@@ -114,6 +118,8 @@ export default function AgentChatSection() {
     } catch (error) {
       console.error("리드 상세 요청 에러:", error);
       setMessages((prev) => [...prev, "리드 상세 요청 에러"]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -155,6 +161,11 @@ export default function AgentChatSection() {
             {msg}
           </div>
         ))}
+        {isloading && (
+          <div className="rounded px-4 py-2 text-left">
+            <SkeletonLoader />
+          </div>
+        )}
       </div>
 
       {/* 채팅 입력창 영역 */}
