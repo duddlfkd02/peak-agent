@@ -7,6 +7,9 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchStore } from "@/store/useSearchStore";
 import { pdfSummary } from "@/types/pdfSummary";
 import SkeletonLoader from "../common/SkeletonLoader";
+import { generateCompanyIntro } from "@/lib/companyIntro";
+import { fetchLeadRecommendations } from "@/lib/api/findLeads";
+import { fetchLeadDetail } from "@/lib/api/leadDetail";
 
 export default function AgentChatSection() {
   const [message, setMessage] = useState("");
@@ -25,65 +28,12 @@ export default function AgentChatSection() {
   const { pdfSummary } = useSearchStore();
   console.log("zustand pdfSummary", pdfSummary);
 
-  // 요약 정보 출력 함수
-  const generateCompanyIntro = (summary: pdfSummary) => {
-    if (!summary) return "회사 정보를 불러올 수 없습니다.";
-
-    const { company_description, business_model, key_executive, address, email } = summary;
-
-    const introParts: string[] = [];
-
-    if (company_description) {
-      introParts.push(`${company_description}`);
-    }
-
-    if (business_model) {
-      introParts.push(`이 회사는 ${business_model}`);
-    }
-
-    const detailParts: string[] = [];
-
-    if (key_executive) {
-      detailParts.push(`대표자는 ${key_executive} 입니다.`);
-    }
-
-    if (address) {
-      detailParts.push(`주소는 ${address}이고 `);
-    }
-
-    if (email) {
-      detailParts.push(`문의 이메일은 ${email}입니다.`);
-    }
-
-    if (detailParts.length > 0) {
-      introParts.push("주요 정보는 아래와 같습니다.");
-      introParts.push(detailParts.join(""));
-    }
-
-    return introParts.join("\n\n").trim();
-  };
-
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
   const handleFindLeads = async () => {
-    // if (!pdfSummary?.company_id) {
-    //   alert("company_id가 없습니다");
-    //   return;
-    // -> companu_id가 pdfSummary에 없어서 추가 필요
-
     try {
-      const response = await fetch(`${BASE_URL}/api/scout/find-leads/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company_id: 94 })
-      });
-
-      if (!response.ok) throw new Error("리드 탐색에 실패했습니다.");
-      const data = await response.json();
-      console.log("data 결과", data);
-      setLeads(data.leads);
+      const leadResponse = await fetchLeadRecommendations(94);
+      setLeads(leadResponse.leads);
     } catch (error) {
-      console.log(error);
+      console.error("리드 탐색 중 오류 발생", error);
     }
   };
 
@@ -95,15 +45,7 @@ export default function AgentChatSection() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/lead/details/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ search_company_name: message, company_id: 94 })
-      });
-
-      if (!response.ok) throw new Error("리드 상세 요청 실패");
-
-      const html = await response.text();
+      const html = await fetchLeadDetail(message, 94);
 
       // 새 창 열기
       const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);

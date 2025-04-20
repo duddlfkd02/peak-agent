@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 import SearchInput from "./SearchInput";
 import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { fetchAnalyzePdf } from "@/lib/api/analyzePdf";
 
 export default function SearchPage() {
   const { setSearchText, setPdfSummary, addPdf } = useSearchStore();
   const [isloading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // 사용자 검색어 기준
   const handleSearch = (query: string) => {
@@ -28,18 +27,8 @@ export default function SearchPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/scout/analyze-pdf/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          profile_id: 1
-        })
-      });
-      const result = await response.json();
-      console.log("요약 결과", result.analysis);
-      setPdfSummary(result.analysis);
+      const result = await fetchAnalyzePdf(2); // profile_id 2번으로 하드코딩
+      setPdfSummary(result);
       addPdf(file);
       router.push("/agent");
     } catch (error) {
