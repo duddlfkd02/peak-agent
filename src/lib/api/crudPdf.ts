@@ -26,3 +26,18 @@ export const fetchUploadPdf = async (company_id: number, file: File): Promise<Co
 
   return result;
 };
+
+export const fetchGetPdfList = async (company_id: number): Promise<CompanyProfile[]> => {
+  const BASE_URL = process.env.NEXT_PUBLIC_API_CRUD_URL;
+
+  const response = await fetch(`${BASE_URL}/api/profiles/company/${company_id}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  if (!response.ok) throw new Error("PDF 조회를 실패했습니다.");
+  const result = await response.json();
+  console.log("PDF 리스트", result);
+
+  return result;
+};

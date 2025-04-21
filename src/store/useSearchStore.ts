@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { pdfSummary } from "../types/pdfSummary";
+import { CompanyProfile } from "@/lib/api/crudPdf";
 
 export interface UploadedPdfMeta {
   name: string;
@@ -21,8 +22,8 @@ interface SearchState {
   selectedPdf: File | null; // 사용자가 선택한 pdf 1개만 저장
   setSelectedPdf: (file: File) => void;
 
-  selectedPdfs: UploadedPdfMeta[]; // 사용자가 선택한 여러개의 pdf 저장  (다중 선택 시 사용)
-  toggleSelectedPdf: (pdf: UploadedPdfMeta) => void;
+  selectedPdfs: CompanyProfile[]; // 사용자가 선택한 여러개의 pdf 저장  (다중 선택 시 사용)
+  toggleSelectedPdf: (pdf: CompanyProfile) => void;
 }
 
 export const useSearchStore = create<SearchState>()(
@@ -51,12 +52,12 @@ export const useSearchStore = create<SearchState>()(
       setSelectedPdf: (file) => set({ selectedPdf: file }),
 
       selectedPdfs: [],
-      toggleSelectedPdf: (pdf: UploadedPdfMeta) =>
+      toggleSelectedPdf: (pdf: CompanyProfile) =>
         set((state) => {
-          const isSelected = state.selectedPdfs.some((p) => p.name === pdf.name);
+          const isSelected = state.selectedPdfs.some((p) => p.fileName === pdf.fileName);
           return {
             selectedPdfs: isSelected
-              ? state.selectedPdfs.filter((p) => p.name !== pdf.name)
+              ? state.selectedPdfs.filter((p) => p.fileName !== pdf.fileName)
               : [...state.selectedPdfs, pdf]
           };
         })
