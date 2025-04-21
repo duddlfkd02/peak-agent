@@ -7,6 +7,7 @@ import SearchInput from "./SearchInput";
 import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { fetchAnalyzePdf } from "@/lib/api/analyzePdf";
+import { fetchUploadPdf } from "@/lib/api/crudPdf";
 
 export default function SearchPage() {
   const { setSearchText, setPdfSummary, addPdf } = useSearchStore();
@@ -27,7 +28,8 @@ export default function SearchPage() {
     setIsLoading(true);
 
     try {
-      const result = await fetchAnalyzePdf(2); // profile_id 2번으로 하드코딩
+      const profile = await fetchUploadPdf(94, file); // company_id 94번(휴램프로)으로 하드코딩
+      const result = await fetchAnalyzePdf(profile.id);
       setPdfSummary(result);
       addPdf(file);
       router.push("/agent");
