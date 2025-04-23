@@ -15,7 +15,7 @@ export const fetchCompanyInfo = async (companyId: number): Promise<CompanyInfo> 
   return json.data;
 };
 
-// 2. AI 질의응답 - 개발 진행 중 추후 수정
+// 2. AI 질의응답
 export const fetchChatMessage = async (
   companyId: number,
   contents: string,
@@ -31,9 +31,13 @@ export const fetchChatMessage = async (
 
   const json = await response.json();
   console.log("채팅 json 결과", json);
-  return json.data;
+
+  return {
+    ...json.data,
+    roomId: json.data.room_id
+  };
 };
-// 3. 대화 내역 요약 리포트
+// 3. 대화 내역 요약 리포트 - 개발 진행 중 추후 수정
 export const fetchChatSummary = async (roomId: number): Promise<ChatSummary> => {
   const response = await fetch(`${NEXT_PUBLIC_API_URL}/api/v2/rooms/${roomId}/summary`, {
     method: "POST",

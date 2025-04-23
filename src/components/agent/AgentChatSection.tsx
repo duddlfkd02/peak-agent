@@ -7,8 +7,6 @@ import { FileUp } from "lucide-react";
 import SkeletonLoader from "../common/SkeletonLoader";
 
 import { useEffect, useRef, useState } from "react";
-import { fetchLeadRecommendations } from "@/lib/api/findLeads";
-import { useSearchStore } from "@/store/useSearchStore";
 import { CompanyInfo } from "@/types/visitor";
 import { generateCompanyIntro } from "@/lib/companyIntro";
 import { fetchChatMessage, fetchChatSummary, fetchCompanyInfo } from "@/lib/api/visitorsAPI";
@@ -103,22 +101,25 @@ export default function AgentChatSection() {
   };
 
   const handlePdfSummary = async () => {
+    console.log("roomID", roomId);
+    if (!roomId) {
+      setMessages((prev) => [...prev, "대화 내역이 없어 채팅 내용을 요약할 수 없습니다."]);
+      return;
+    }
     try {
-      const { summary } = await fetchChatSummary(2);
+      const { summary } = await fetchChatSummary(roomId);
 
-      // 새 창 열기
       const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);
-
       if (popup) {
         popup.document.open();
         popup.document.write(summary);
         popup.document.close();
       } else {
-        setMessages((prev) => [...prev, "팝업을 차단했거나 새 창을 열 수 없습니다."]);
+        setMessages((prev) => [...prev, "팝업 차단으로 새 창을 열 수 없습니다."]);
       }
     } catch (error) {
-      console.error("리드 상세 요청 에러:", error);
-      setMessages((prev) => [...prev, "리드 상세 요청 에러"]);
+      console.error("리포트 요약 실패:", error);
+      setMessages((prev) => [...prev, "리포트 요약 중 오류가 발생했습니다."]);
     } finally {
       setIsLoading(false);
     }
