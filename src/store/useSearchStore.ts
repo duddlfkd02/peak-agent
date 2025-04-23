@@ -10,9 +10,6 @@ export interface UploadedPdfMeta {
 }
 
 interface SearchState {
-  searchText: string;
-  setSearchText: (text: string) => void;
-
   pdfSummary: pdfSummary | null;
   setPdfSummary: (summary: pdfSummary) => void;
 
@@ -29,9 +26,6 @@ interface SearchState {
 export const useSearchStore = create<SearchState>()(
   persist(
     (set) => ({
-      searchText: "",
-      setSearchText: (text) => set({ searchText: text }),
-
       pdfSummary: null,
       setPdfSummary: (summary) => set({ pdfSummary: summary }),
 

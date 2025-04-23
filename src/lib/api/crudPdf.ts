@@ -1,5 +1,3 @@
-import { pdfSummary } from "@/types/pdfSummary";
-
 export interface CompanyProfile {
   id: number;
   companyId: number;

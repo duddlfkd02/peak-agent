@@ -12,6 +12,7 @@ export default function Header() {
   return (
     <header className="fixed left-0 top-0 z-50 flex w-full items-center justify-start bg-darkgray px-6 py-4">
       <Image
+        priority
         src="/logo/PEAK-simple-logo.svg"
         alt="peak logo"
         width={80}
