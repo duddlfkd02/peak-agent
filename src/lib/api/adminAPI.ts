@@ -15,6 +15,5 @@ export const fetchAdminAiChat = async (leadId: number): Promise<AdminChat[]> => 
   }
 
   const json = await response.json();
-  console.log("chat반환 성공", json.data);
   return json.data.chats;
 };
