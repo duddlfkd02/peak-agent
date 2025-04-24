@@ -10,13 +10,13 @@ export default function AgentDataSection({ onUpload }: PdfUploaderProps) {
   const { uploadedPdfs, selectedPdfs, toggleSelectedPdf } = useSearchStore();
   const [pdfFiles, setPdfFiles] = useState<CompanyProfile[]>([]);
 
-  useEffect(() => {
-    const getPdfList = async () => {
-      const result = await fetchGetPdfList(94); // company_id 94번(휴램프로) 으로 하드코딩
-      setPdfFiles(result);
-    };
-    getPdfList();
-  }, []);
+  // useEffect(() => {
+  //   const getPdfList = async () => {
+  //     const result = await fetchGetPdfList(94); // company_id 94번(휴램프로) 으로 하드코딩
+  //     setPdfFiles(result);
+  //   };
+  //   getPdfList();
+  // }, []);
 
   return (
     <div className="flex flex-col items-center rounded-lg bg-foreground p-4">

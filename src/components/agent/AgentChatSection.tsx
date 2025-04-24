@@ -3,68 +3,95 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useSearchStore } from "@/store/useSearchStore";
-import { pdfSummary } from "@/types/pdfSummary";
+import { FileUp } from "lucide-react";
 import SkeletonLoader from "../common/SkeletonLoader";
+
+import { useEffect, useRef, useState } from "react";
+import { CompanyInfo } from "@/types/visitor";
 import { generateCompanyIntro } from "@/lib/companyIntro";
-import { fetchLeadRecommendations } from "@/lib/api/findLeads";
-import { fetchLeadDetail } from "@/lib/api/leadDetail";
+import { fetchChatMessage, fetchChatSummary, fetchCompanyInfo } from "@/lib/api/visitorsAPI";
 
 export default function AgentChatSection() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
-  const [leads, setLeads] = useState<any[]>([]);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [isIntro, setIsIntro] = useState(false); // 처음 회사 소개 출력 확인용
+  const [roomId, setRoomId] = useState<number | null>(null);
   const [isloading, setIsLoading] = useState(false);
 
   const messageEndRef = useRef<HTMLDivElement>(null);
 
+  // companyInfo 값을 인자로 받은 후 문장 만드느 함수
+  const fixedQuestions = [
+    (company: CompanyInfo) => `${company.companyName}의 대표자 이름은 누구인가요?`,
+    (company: CompanyInfo) => `${company.companyName}의 회사 위치는 어디인가요?`,
+    (company: CompanyInfo) => `${company.companyName}의 연락처는 무엇인가요?`
+  ];
+
+  const fixedAnswers = [
+    (company: CompanyInfo) => `${company.companyName} 대표자 이름은 ${company.keyExecutive} 입니다.`,
+    (company: CompanyInfo) => `${company.companyName}의 위치는 ${company.address} 입니다.`,
+    (company: CompanyInfo) => `${company.companyName}의 연락처는 ${company.phoneNumber}입니다.`
+  ];
+
+  // 맨 처음 기업 기본 소개 불러오기
+  useEffect(() => {
+    const loadCompanyInfo = async () => {
+      const data = await fetchCompanyInfo(1);
+      setCompanyInfo(data);
+      setMessages([generateCompanyIntro(data)]);
+    };
+    loadCompanyInfo();
+  }, []);
+
+  const delay = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
+
+  useEffect(() => {
+    const startQnA = async () => {
+      if (!companyInfo || isIntro) return;
+      setIsIntro(true);
+
+      for (let i = 0; i < fixedQuestions.length; i++) {
+        await delay(2000);
+        setMessages((prev) => [...prev, fixedQuestions[i](companyInfo), fixedAnswers[i](companyInfo)]);
+      }
+    };
+
+    startQnA();
+  }, [companyInfo, isIntro]);
+
+  // 채팅 자동 스크롤
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollTop = messageEndRef.current.scrollHeight;
     }
   }, [messages]);
 
-  const { pdfSummary } = useSearchStore();
-  console.log("zustand pdfSummary", pdfSummary);
-
-  const handleFindLeads = async () => {
-    try {
-      const leadResponse = await fetchLeadRecommendations(94);
-      setLeads(leadResponse.leads);
-    } catch (error) {
-      console.error("리드 탐색 중 오류 발생", error);
-    }
-  };
-
+  // ai 자유 채팅 로직
   const handleSubmit = async () => {
     if (!message.trim()) return;
+
     setMessages((prev) => [...prev, message]);
     setMessage("");
-
     setIsLoading(true);
 
     try {
-      const html = await fetchLeadDetail(message, 94);
+      const aiResponse = await fetchChatMessage(2, message, roomId);
 
-      // 새 창 열기
-      const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);
+      setMessages((prev) => [...prev, aiResponse.contents]);
 
-      if (popup) {
-        popup.document.open();
-        popup.document.write(html);
-        popup.document.close();
-      } else {
-        setMessages((prev) => [...prev, "팝업을 차단했거나 새 창을 열 수 없습니다."]);
+      if (!roomId && aiResponse.roomId) {
+        setRoomId(aiResponse.roomId);
       }
     } catch (error) {
-      console.error("리드 상세 요청 에러:", error);
-      setMessages((prev) => [...prev, "리드 상세 요청 에러"]);
+      console.error("AI 응답 실패:", error);
+      setMessages((prev) => [...prev, "AI 응답 처리 중 오류가 발생했습니다."]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 입력창 shift + enter 줄바꿈
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -72,34 +99,39 @@ export default function AgentChatSection() {
       setMessage("");
     }
   };
+
+  const handlePdfSummary = async () => {
+    console.log("roomID", roomId);
+    if (!roomId) {
+      setMessages((prev) => [...prev, "대화 내역이 없어 채팅 내용을 요약할 수 없습니다."]);
+      return;
+    }
+    try {
+      const { summary } = await fetchChatSummary(roomId);
+
+      const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);
+      if (popup) {
+        popup.document.open();
+        popup.document.write(summary);
+        popup.document.close();
+      } else {
+        setMessages((prev) => [...prev, "팝업 차단으로 새 창을 열 수 없습니다."]);
+      }
+    } catch (error) {
+      console.error("리포트 요약 실패:", error);
+      setMessages((prev) => [...prev, "리포트 요약 중 오류가 발생했습니다."]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">Agent</h2>
 
       <div ref={messageEndRef} className="flex-1 overflow-y-auto rounded p-4 sm:text-sm">
-        {pdfSummary ? <div className="text-white">{generateCompanyIntro(pdfSummary)}</div> : "요약 정보가 없습니다."}
-        {pdfSummary && (
-          <Button className="mt-4 w-fit border bg-transparent text-white" onClick={handleFindLeads}>
-            리드 탐색하기
-          </Button>
-        )}
-
-        {leads.length > 0 && (
-          <div className="mt-6">
-            <h3 className="bold mb-2 text-white">추천 리드</h3>
-            <ul className="space-y-2">
-              {leads.map((lead, index) => (
-                <li key={index} className="rounded bg-darkgray p-3 text-white">
-                  <p>회사명: {lead.company}</p>
-                  <p>산업군: {lead.industry}</p>
-                  <p>홈페이지: {lead.homepage}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
         {messages.map((msg, index) => (
-          <div key={index} className="rounded px-4 py-2 text-right text-white">
+          <div key={index} className="rounded px-4 py-2 text-white">
             {msg}
           </div>
         ))}
@@ -122,6 +154,11 @@ export default function AgentChatSection() {
         <div className="absolute bottom-3 right-3 flex gap-2">
           <Button size="icon" variant="ghost" className="bg-primary" onClick={handleSubmit}>
             <Send className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="absolute bottom-3 right-20 flex gap-2">
+          <Button size="icon" variant="ghost" className="bg-primary" onClick={handlePdfSummary}>
+            <FileUp className="h-4 w-4" />
           </Button>
         </div>
       </div>
