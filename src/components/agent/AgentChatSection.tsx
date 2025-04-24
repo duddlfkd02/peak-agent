@@ -31,9 +31,18 @@ export default function AgentChatSection() {
   ];
 
   const fixedAnswers = [
-    (company: CompanyInfo) => `${company.companyName} 대표자 이름은 ${company.keyExecutive} 입니다.`,
-    (company: CompanyInfo) => `${company.companyName}의 위치는 ${company.address} 입니다.`,
-    (company: CompanyInfo) => `${company.companyName}의 연락처는 ${company.phoneNumber}입니다.`
+    (company: CompanyInfo) =>
+      company.keyExecutive
+        ? `${company.companyName} 대표자 이름은 ${company.keyExecutive} 입니다.`
+        : `${company.companyName} 대표자 정보는 공개되지 않아 확인할 수 없습니다.`,
+    (company: CompanyInfo) =>
+      company.address
+        ? `${company.companyName}의 위치는 ${company.address} 입니다.`
+        : `${company.companyName}의 위치정보를 확인할 수 없습니다.`,
+    (company: CompanyInfo) =>
+      company.phoneNumber
+        ? `${company.companyName}의 연락처는 ${company.phoneNumber}입니다.`
+        : `${company.companyName}의 연락처가 공개되지 않아 확인할 수 없습니다..`
   ];
 
   // 맨 처음 기업 기본 소개 불러오기
