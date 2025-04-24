@@ -7,13 +7,15 @@ import { FileUp } from "lucide-react";
 import SkeletonLoader from "../common/SkeletonLoader";
 
 import { useEffect, useRef, useState } from "react";
-import { CompanyInfo } from "@/types/visitor";
+
 import { generateCompanyIntro } from "@/lib/companyIntro";
 import { fetchChatMessage, fetchChatSummary, fetchCompanyInfo } from "@/lib/api/visitorsAPI";
+import { CompanyInfo } from "@/types/visitor";
+import { UIChatMessage } from "@/types/visitor";
 
 export default function AgentChatSection() {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<UIChatMessage[]>([]);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isIntro, setIsIntro] = useState(false); // 처음 회사 소개 출력 확인용
   const [roomId, setRoomId] = useState<number | null>(null);
@@ -53,7 +55,12 @@ export default function AgentChatSection() {
 
       for (let i = 0; i < fixedQuestions.length; i++) {
         await delay(2000);
-        setMessages((prev) => [...prev, fixedQuestions[i](companyInfo), fixedAnswers[i](companyInfo)]);
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "user", content: fixedQuestions[i](companyInfo) },
+          { role: "agent", content: fixedAnswers[i](companyInfo) }
+        ]);
       }
     };
 
@@ -71,21 +78,21 @@ export default function AgentChatSection() {
   const handleSubmit = async () => {
     if (!message.trim()) return;
 
-    setMessages((prev) => [...prev, message]);
+    setMessages((prev) => [...prev, { role: "user", content: message }]);
     setMessage("");
     setIsLoading(true);
 
     try {
       const aiResponse = await fetchChatMessage(2, message, roomId);
 
-      setMessages((prev) => [...prev, aiResponse.contents]);
+      setMessages((prev) => [...prev, { role: "agent", content: aiResponse.contents }]);
 
       if (!roomId && aiResponse.roomId) {
         setRoomId(aiResponse.roomId);
       }
     } catch (error) {
       console.error("AI 응답 실패:", error);
-      setMessages((prev) => [...prev, "AI 응답 처리 중 오류가 발생했습니다."]);
+      setMessages((prev) => [...prev, { role: "agent", content: "AI 응답 처리 중 오류가 발생했습니다." }]);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +110,7 @@ export default function AgentChatSection() {
   const handlePdfSummary = async () => {
     console.log("roomID", roomId);
     if (!roomId) {
-      setMessages((prev) => [...prev, "대화 내역이 없어 채팅 내용을 요약할 수 없습니다."]);
+      setMessages((prev) => [...prev, { role: "agent", content: "대화 내역이 없어 채팅 내용을 요약할 수 없습니다." }]);
       return;
     }
     try {
@@ -115,11 +122,11 @@ export default function AgentChatSection() {
         popup.document.write(summary);
         popup.document.close();
       } else {
-        setMessages((prev) => [...prev, "팝업 차단으로 새 창을 열 수 없습니다."]);
+        setMessages((prev) => [...prev, { role: "agent", content: "팝업 차단으로 새 창을 열 수 없습니다." }]);
       }
     } catch (error) {
       console.error("리포트 요약 실패:", error);
-      setMessages((prev) => [...prev, "리포트 요약 중 오류가 발생했습니다."]);
+      setMessages((prev) => [...prev, { role: "agent", content: "리포트 요약 중 오류가 발생했습니다." }]);
     } finally {
       setIsLoading(false);
     }
@@ -129,10 +136,16 @@ export default function AgentChatSection() {
     <div className="flex h-[calc(100vh-80px)] flex-col rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">Agent</h2>
 
-      <div ref={messageEndRef} className="flex-1 overflow-y-auto rounded p-4 sm:text-sm">
+      <div ref={messageEndRef} className="flex-1 space-y-2 overflow-y-auto rounded p-4 sm:text-sm">
         {messages.map((msg, index) => (
-          <div key={index} className="rounded px-4 py-2 text-white">
-            {msg}
+          <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[80%] rounded-lg p-4 text-sm ${
+                msg.role === "user" ? "bg-darkgray text-white" : "text-white"
+              }`}
+            >
+              {msg.content}
+            </div>
           </div>
         ))}
         {isloading && (
