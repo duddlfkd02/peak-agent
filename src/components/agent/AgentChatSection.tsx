@@ -37,7 +37,7 @@ export default function AgentChatSection() {
   // 맨 처음 기업 기본 소개 불러오기
   useEffect(() => {
     const loadCompanyInfo = async () => {
-      const data = await fetchCompanyInfo(1);
+      const data = await fetchCompanyInfo(2);
       setCompanyInfo(data);
       setMessages([generateCompanyIntro(data)]);
     };
