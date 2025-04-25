@@ -1,4 +1,4 @@
-import { AdminChat, AdminChatResponse } from "@/types/admin";
+import { AdminChatResponse, RecommendedLeads } from "@/types/admin";
 
 const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -36,4 +36,18 @@ export const fetchAdminChatSummary = async (leadId: number, roomId: number): Pro
   const json = await response.json();
 
   return json.data.summary;
+};
+
+export const fetchRecommendedLeads = async (companyId: number): Promise<RecommendedLeads[]> => {
+  const response = await fetch(`${NEXT_PUBLIC_API_URL}/api/v1/companies/${companyId}/leads`);
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error("리드 추천 조회 실패", text);
+    throw new Error("리드 추천 조회 실패");
+  }
+
+  const json = await response.json();
+  console.log("리드 추천 목록", json);
+  return json.data;
 };
