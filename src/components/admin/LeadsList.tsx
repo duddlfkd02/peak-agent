@@ -8,10 +8,11 @@ import { useShallow } from "zustand/shallow";
 
 export default function LeadsList() {
   const [leads, setLeads] = useState<RecommendedLeads[]>([]);
-  const { setSelectedLeadId, setIsSelectedLead } = useAdminStore(
+  const { setSelectedLeadId, setIsSelectedLead, setSelectedLeadName } = useAdminStore(
     useShallow((state) => ({
       setSelectedLeadId: state.setSelectedLeadId,
-      setIsSelectedLead: state.setIsSelectedLead
+      setIsSelectedLead: state.setIsSelectedLead,
+      setSelectedLeadName: state.setSelectedLeadName
     }))
   );
 
@@ -28,9 +29,10 @@ export default function LeadsList() {
     fetchLeads();
   }, []);
 
-  const handleClick = (leadId: number) => {
+  const handleClick = (leadId: number, name: string) => {
     setSelectedLeadId(leadId);
     setIsSelectedLead(true);
+    setSelectedLeadName(name);
   };
 
   return (
@@ -48,7 +50,7 @@ export default function LeadsList() {
             <tr key={lead.id} className="border">
               <td
                 className="hover:test-black cursor-pointer border-r py-3 hover:bg-gray-500"
-                onClick={() => handleClick(lead.id)}
+                onClick={() => handleClick(lead.id, lead.leadCompanyName)}
               >
                 {lead.leadCompanyName}
               </td>
