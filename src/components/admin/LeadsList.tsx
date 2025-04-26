@@ -4,10 +4,16 @@ import { fetchRecommendedLeads } from "@/lib/api/adminAPI";
 import { RecommendedLeads } from "@/types/admin";
 import { useAdminStore } from "@/store/useAdminStore";
 import { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
 
 export default function LeadsList() {
   const [leads, setLeads] = useState<RecommendedLeads[]>([]);
-  const setSelectedLeadId = useAdminStore((state) => state.setSelectedLeadId);
+  const { setSelectedLeadId, setIsSelectedLead } = useAdminStore(
+    useShallow((state) => ({
+      setSelectedLeadId: state.setSelectedLeadId,
+      setIsSelectedLead: state.setIsSelectedLead
+    }))
+  );
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -21,6 +27,11 @@ export default function LeadsList() {
 
     fetchLeads();
   }, []);
+
+  const handleClick = (leadId: number) => {
+    setSelectedLeadId(leadId);
+    setIsSelectedLead(true);
+  };
 
   return (
     <section className="h-[calc(100vh-150px)] overflow-hidden rounded-lg bg-foreground p-4">
@@ -37,7 +48,7 @@ export default function LeadsList() {
             <tr key={lead.id} className="border">
               <td
                 className="hover:test-black cursor-pointer border-r py-3 hover:bg-gray-500"
-                onClick={() => setSelectedLeadId(lead.id)}
+                onClick={() => handleClick(lead.id)}
               >
                 {lead.leadCompanyName}
               </td>

@@ -5,11 +5,16 @@ interface AdminState {
   setSelectedLeadId: (id: number) => void; // 클릭 시 호출되는 함수
   selectedRoomId: number | null;
   setSelectedRoomId: (id: number) => void;
+
+  isSelectedLead: boolean; // 리드 선택 되었는지 확인 (컴포넌트 교체 시 사용)
+  setIsSelectedLead: (value: boolean) => void;
 }
 
 export const useAdminStore = create<AdminState>((set) => ({
   selectedLeadId: null,
   selectedRoomId: null,
+  isSelectedLead: false,
   setSelectedLeadId: (id) => set({ selectedLeadId: id }),
-  setSelectedRoomId: (id) => set({ selectedRoomId: id })
+  setSelectedRoomId: (id) => set({ selectedRoomId: id }),
+  setIsSelectedLead: (value) => set({ isSelectedLead: value })
 }));
