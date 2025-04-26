@@ -1,32 +1,33 @@
 import { fetchAdminAiChat } from "@/lib/api/adminAPI";
 import { AdminChat } from "@/types/admin";
-import React, { SetStateAction, useEffect, useState } from "react";
+import { useAdminStore } from "@/store/useAdminStore";
+import React, { useEffect, useState } from "react";
 
 import ReactMarkdown from "react-markdown";
 
-interface IProps {
-  leadId: number;
-  setRoomId: React.Dispatch<SetStateAction<number | null>>;
-}
-
-export default function AiChatSection({ leadId, setRoomId }: IProps) {
+export default function AiChatSection() {
   const [chats, setChats] = useState<AdminChat[]>([]);
+  const selectedLeadId = useAdminStore((state) => state.selectedLeadId);
+  const setSelectedRoomId = useAdminStore((state) => state.setSelectedRoomId);
+
   useEffect(() => {
+    if (!selectedLeadId) return;
+
     const fetchChatData = async () => {
       try {
-        const result = await fetchAdminAiChat(leadId); // 하드코딩 1번
+        const result = await fetchAdminAiChat(selectedLeadId); // 하드코딩 1번 목록
         const chats = result.data.chats;
-        const responseRoomId = result.data.roomId;
+        const roomId = result.data.roomId;
         console.log("Ai chat 목록", chats);
-        setRoomId(responseRoomId);
         setChats(chats);
+        setSelectedRoomId(roomId);
       } catch (error) {
         console.error("error", error);
       }
     };
 
     fetchChatData();
-  }, []);
+  }, [selectedLeadId]);
 
   return (
     <section className="h-[calc(100vh-150px)] overflow-hidden rounded-lg bg-foreground p-4">

@@ -96,7 +96,7 @@ export default function SankeyChart() {
         ]}
         layout={{
           font: { size: 14, color: "#fff", family: "Pretendard, sans-serif" },
-          width: 1000,
+          width: 900,
           height: 600,
           paper_bgcolor: "#1F1F1F",
           plot_bgcolor: "#1F1F1F",
