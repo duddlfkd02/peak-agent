@@ -116,31 +116,6 @@ export default function AgentChatSection() {
     }
   };
 
-  const handlePdfSummary = async () => {
-    console.log("roomID", roomId);
-    if (!roomId) {
-      setMessages((prev) => [...prev, { role: "agent", content: "대화 내역이 없어 채팅 내용을 요약할 수 없습니다." }]);
-      return;
-    }
-    try {
-      const { summary } = await fetchChatSummary(roomId);
-
-      const popup = window.open("", "_blank", `width=${window.innerWidth},height=${window.innerHeight},left=0,top=0`);
-      if (popup) {
-        popup.document.open();
-        popup.document.write(summary);
-        popup.document.close();
-      } else {
-        setMessages((prev) => [...prev, { role: "agent", content: "팝업 차단으로 새 창을 열 수 없습니다." }]);
-      }
-    } catch (error) {
-      console.error("리포트 요약 실패:", error);
-      setMessages((prev) => [...prev, { role: "agent", content: "리포트 요약 중 오류가 발생했습니다." }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">Agent</h2>
@@ -178,11 +153,11 @@ export default function AgentChatSection() {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <div className="absolute bottom-3 right-20 flex gap-2">
+        {/* <div className="absolute bottom-3 right-20 flex gap-2">
           <Button size="icon" variant="ghost" className="bg-primary" onClick={handlePdfSummary}>
             <FileUp className="h-4 w-4" />
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

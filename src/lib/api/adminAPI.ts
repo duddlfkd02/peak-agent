@@ -51,3 +51,23 @@ export const fetchRecommendedLeads = async (companyId: number): Promise<Recommen
   console.log("리드 추천 목록", json);
   return json.data;
 };
+
+export const fetchWebSearchPDF = async (companyName: string) => {
+  const response = await fetch(`${NEXT_PUBLIC_API_URL}/api/v2/leads/details`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      company_name: companyName
+    })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error("리드 검색 실패", text);
+    throw new Error("리드 검색 실패");
+  }
+
+  const json = await response.text();
+  console.log("리드 검색 보고서", json);
+  return json;
+};

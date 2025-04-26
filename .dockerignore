@@ -1,0 +1,11 @@
+.env
+.next
+.git
+node_modules
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+Dockerfile*
+.dockerignore
+README.md
+LICENSE
