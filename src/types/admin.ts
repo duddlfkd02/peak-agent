@@ -16,3 +16,9 @@ export interface AdminChatResponse {
     chats: AdminChat[];
   };
 }
+
+export interface RecommendedLeads {
+  id: number;
+  leadCompanyName: string;
+  leadScore: number;
+}
