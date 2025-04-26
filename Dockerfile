@@ -18,7 +18,7 @@ COPY . .
 # Next.js 애플리케이션 빌드
 # 환경 변수를 빌드 시점에 주입해야 한다면 여기서 ARG 또는 ENV 사용
 ARG NEXT_PUBLIC_API_URL # 예시 환경 변수
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=http://ec2-3-35-216-5.ap-northeast-2.compute.amazonaws.com:8080
 RUN yarn build
 
 # --- 러너 스테이지 ---
