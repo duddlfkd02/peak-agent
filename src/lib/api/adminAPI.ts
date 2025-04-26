@@ -68,6 +68,6 @@ export const fetchWebSearchPDF = async (companyName: string) => {
   }
 
   const json = await response.text();
-  console.log("리드 검색 보고서", json);
+  // console.log("리드 검색 보고서", json);
   return json;
 };

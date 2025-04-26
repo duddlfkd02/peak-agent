@@ -9,7 +9,7 @@ import SkeletonLoader from "../common/SkeletonLoader";
 import { useEffect, useRef, useState } from "react";
 
 import { generateCompanyIntro } from "@/lib/companyIntro";
-import { fetchChatMessage, fetchChatSummary, fetchCompanyInfo } from "@/lib/api/visitorsAPI";
+import { fetchChatMessage, fetchCompanyInfo } from "@/lib/api/visitorsAPI";
 import { CompanyInfo } from "@/types/visitor";
 import { UIChatMessage } from "@/types/visitor";
 
@@ -153,11 +153,6 @@ export default function AgentChatSection() {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        {/* <div className="absolute bottom-3 right-20 flex gap-2">
-          <Button size="icon" variant="ghost" className="bg-primary" onClick={handlePdfSummary}>
-            <FileUp className="h-4 w-4" />
-          </Button>
-        </div> */}
       </div>
     </div>
   );
