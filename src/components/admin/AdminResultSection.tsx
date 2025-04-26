@@ -3,22 +3,21 @@ import { Button } from "../ui/button";
 import { fetchAdminChatSummary } from "@/lib/api/adminAPI";
 import ReactMarkdown from "react-markdown";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { useAdminStore } from "@/store/useAdminStore";
 
-interface IProps {
-  roomId: number | null;
-  leadId: number;
-}
-export default function AdminResultSection({ roomId, leadId }: IProps) {
+export default function AdminResultSection() {
   const [summary, setSummary] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const selectedLeadId = useAdminStore((state) => state.selectedLeadId);
+  const selectedRoomId = useAdminStore((state) => state.selectedRoomId);
 
   const handleSummary = async () => {
-    if (!roomId) return;
+    if (!selectedLeadId || !selectedRoomId) return;
 
     setIsLoading(true);
 
     try {
-      const response = await fetchAdminChatSummary(leadId, roomId);
+      const response = await fetchAdminChatSummary(selectedLeadId, selectedRoomId);
       setSummary(response);
     } catch (error) {
       console.error("채팅 요약을 실패했습니다.", error);
@@ -42,7 +41,7 @@ export default function AdminResultSection({ roomId, leadId }: IProps) {
       )}
       {summary && (
         <div className="h-full space-y-6 overflow-y-auto pb-14 pr-2 pt-5">
-          <div className="prose prose-invert prose-p:mb-4 max-w-none text-sm">
+          <div className="prose prose-invert max-w-none text-sm prose-p:mb-4">
             <ReactMarkdown>{summary}</ReactMarkdown>
           </div>
         </div>

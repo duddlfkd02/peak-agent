@@ -2,10 +2,12 @@
 
 import { fetchRecommendedLeads } from "@/lib/api/adminAPI";
 import { RecommendedLeads } from "@/types/admin";
+import { useAdminStore } from "@/store/useAdminStore";
 import { useEffect, useState } from "react";
 
 export default function LeadsList() {
   const [leads, setLeads] = useState<RecommendedLeads[]>([]);
+  const setSelectedLeadId = useAdminStore((state) => state.setSelectedLeadId);
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -33,7 +35,12 @@ export default function LeadsList() {
         <tbody>
           {leads.map((lead) => (
             <tr key={lead.id} className="border">
-              <td className="border-r py-3">{lead.leadCompanyName}</td>
+              <td
+                className="hover:test-black cursor-pointer border-r py-3 hover:bg-gray-500"
+                onClick={() => setSelectedLeadId(lead.id)}
+              >
+                {lead.leadCompanyName}
+              </td>
               <td className="py-3 text-purple-400">{lead.leadScore}</td>
             </tr>
           ))}
