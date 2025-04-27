@@ -2,6 +2,8 @@ export interface AdminChat {
   id: number;
   fromCompanyName: string;
   toCompanyName: string;
+  fromId?: string | null;
+  toId?: string | null;
   contents: string;
   createdAt: string;
 }
