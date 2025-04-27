@@ -1,14 +1,16 @@
-import { fetchAdminAiChat } from "@/lib/api/adminAPI";
+import { fetchAdminAiChat, fetchLeadAgentChatEventSource } from "@/lib/api/adminAPI";
 import { AdminChat } from "@/types/admin";
 import { useAdminStore } from "@/store/useAdminStore";
 import React, { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import { Button } from "../ui/button";
 
 export default function AiChatSection() {
   const [chats, setChats] = useState<AdminChat[]>([]);
   const [loading, setLoading] = useState(false);
   const selectedLeadId = useAdminStore((state) => state.selectedLeadId);
   const setSelectedRoomId = useAdminStore((state) => state.setSelectedRoomId);
+  const selectedLeadName = useAdminStore((state) => state.selectedLeadName);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,7 +35,10 @@ export default function AiChatSection() {
   useEffect(() => {
     // 채팅이 업데이트될 때마다 스크롤을 맨 아래로 이동
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
     }
   }, [chats]);
 
@@ -41,9 +46,9 @@ export default function AiChatSection() {
     if (!selectedLeadId) return;
 
     setLoading(true);
-    const url = process.env.NEXT_PUBLIC_API_URL;
+    const eventSource = fetchLeadAgentChatEventSource(selectedLeadId);
 
-    const eventSource = new EventSource(`${url}/api/v2/leads/${selectedLeadId}/agents/chats`);
+    console.log(eventSource);
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -76,25 +81,26 @@ export default function AiChatSection() {
   return (
     <section className="h-[calc(100vh-150px)] overflow-hidden rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">AI 대화 내역</h2>
-      <div ref={chatContainerRef} className="h-full space-y-6 overflow-y-auto pr-2">
+      <div ref={chatContainerRef} className="h-full overflow-y-auto">
         {chats.length === 0 && !loading ? (
           <div className="flex h-full flex-col items-center justify-center">
-            <button
-              onClick={handleStartConversation}
-              className="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/80"
-            >
-              대화 시작
-            </button>
+            <Button onClick={handleStartConversation}>대화 시작</Button>
           </div>
         ) : (
-          chats.map((chat) => (
-            <div key={chat.id} className="rounded-xl p-4">
-              <p className="mb-4 w-fit rounded-full bg-primary px-3 py-2 font-bold">{chat.fromCompanyName}</p>
-              <div className="prose prose-invert max-w-none text-sm prose-p:mb-4">
-                <ReactMarkdown>{chat.contents}</ReactMarkdown>
+          chats.map((chat) => {
+            const isMyCompany = chat.fromCompanyName === selectedLeadName;
+            return (
+              <div key={chat.id} className={`flex ${isMyCompany ? "justify-end" : "justify-start"} rounded-xl p-2`}>
+                <div
+                  className={`${isMyCompany ? "bg-primary text-white" : "bg-darkgray text-foreground"} mb-8 max-w-[70%] rounded-xl p-4`}
+                >
+                  <div className="prose prose-invert max-w-none break-words text-sm prose-p:mb-2">
+                    <ReactMarkdown>{chat.contents}</ReactMarkdown>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </section>

@@ -71,3 +71,7 @@ export const fetchWebSearchPDF = async (companyName: string) => {
   // console.log("리드 검색 보고서", json);
   return json;
 };
+
+export const fetchLeadAgentChatEventSource = (leadId: number) => {
+  return new EventSource(`${NEXT_PUBLIC_API_URL}/api/v2/leads/${leadId}/agents/chats`);
+};
