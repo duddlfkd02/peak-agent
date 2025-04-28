@@ -4,7 +4,6 @@
 
 - 프로젝트명 : Peak A2A
 - 주요 기능 : AI 에이전트를 이용하여 기업 정보를 자동으로 수집, 요약, 질문 생성, 추천까지 제공하는 B2B 서비스입니다.
-- 태스트 배포링크 : http://ec2-3-35-216-5.ap-northeast-2.compute.amazonaws.com/
 
 <br>
 
