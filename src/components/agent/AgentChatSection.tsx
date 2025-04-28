@@ -3,7 +3,6 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { FileUp } from "lucide-react";
 import SkeletonLoader from "../common/SkeletonLoader";
 
 import { useEffect, useRef, useState } from "react";
