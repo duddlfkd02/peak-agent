@@ -4,6 +4,7 @@ import { useAdminStore } from "@/store/useAdminStore";
 import React, { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "../ui/button";
+import AgentSymbol from "../common/AgentSymbol";
 
 export default function AiChatSection() {
   const [chats, setChats] = useState<AdminChat[]>([]);
@@ -90,12 +91,17 @@ export default function AiChatSection() {
           chats.map((chat) => {
             const isMyCompany = chat.fromCompanyName === selectedLeadName;
             return (
-              <div key={chat.id} className={`flex ${isMyCompany ? "justify-end" : "justify-start"} rounded-xl p-2`}>
-                <div
-                  className={`${isMyCompany ? "bg-primary text-white" : "bg-darkgray text-foreground"} mb-8 max-w-[70%] rounded-xl p-4`}
-                >
-                  <div className="prose prose-invert max-w-none break-words text-sm prose-p:mb-2">
-                    <ReactMarkdown>{chat.contents}</ReactMarkdown>
+              <div key={chat.id} className={`flex ${isMyCompany ? "justify-end" : "justify-start"} w-full p-2`}>
+                <div className={`flex items-start gap-4 ${isMyCompany ? "flex-row-reverse" : "flex-row"}`}>
+                  <AgentSymbol />
+                  <div
+                    className={`${
+                      isMyCompany ? "bg-primary text-white" : "bg-darkgray text-foreground"
+                    } my-8 max-w-[70%] rounded-xl p-4`}
+                  >
+                    <div className="prose prose-invert max-w-none break-words text-sm prose-p:mb-2">
+                      <ReactMarkdown>{chat.contents}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               </div>

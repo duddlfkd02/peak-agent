@@ -1,9 +1,5 @@
-import Spline from "@splinetool/react-spline";
+import Image from "next/image";
 
 export default function AgentSymbol() {
-  return (
-    <div>
-      <Spline scene="https://prod.spline.design/OTWFTmfc9pzBvYmz/scene.splinecode" />
-    </div>
-  );
+  return <Image src="/assets/agent.gif" alt="Agent Symbol" width={55} height={55} />;
 }

@@ -35,7 +35,7 @@
 | **react-markdown**                                                                 | 마크다운 형식의 텍스트를 React 컴포넌트로 변환 |
 | **@splinetool/react-spline / @splinetool/runtime**                                 | 3D 인터랙티브 디자인 (Spline) 컴포넌트 추가용  |
 
-⭐️ `splinetool`은 설치하였으나 이미지 적용에 문제가 있어 컴포넌트(`AgentSymbol.tsx`)만 생성하였고 실제 적용은 하지 않았습니다.
+⭐️ `splinetool`은 설치하였으나 이미지 적용에 문제가 있어 컴포넌트(`AgentSymbol.tsx`)만 생성하였고 실제 적용은 gif 파일로 대체하였습니다.
 
 ## 4. 폴더/파일 구조
 
