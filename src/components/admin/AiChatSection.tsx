@@ -21,16 +21,22 @@ export default function AiChatSection() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const [isAutoScroll, setIsAutoScroll] = useState(true);
+
+  const handleScroll = () => {
+    if (!chatContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    const isBottom = scrollHeight - scrollTop <= clientHeight + 10;
+    setIsAutoScroll(isBottom);
+  };
 
   const scrollToBottom = () => {
-    setTimeout(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTo({
-          top: chatContainerRef.current.scrollHeight,
-          behavior: "smooth"
-        });
-      }
-    }, 100); // DOM 반영 시간 고려
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   };
 
   useEffect(() => {
@@ -78,8 +84,17 @@ export default function AiChatSection() {
   }, [selectedLeadId, setSelectedRoomId]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [chats]);
+    const ref = chatContainerRef.current;
+    if (!ref) return;
+    ref.addEventListener("scroll", handleScroll);
+    return () => ref.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (isAutoScroll) {
+      scrollToBottom();
+    }
+  }, [chats, isAutoScroll]);
 
   const runTypingAnimation = useCallback((chatId: number, fullContents: string) => {
     let currentText = "";
