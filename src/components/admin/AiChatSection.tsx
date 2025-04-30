@@ -1,113 +1,208 @@
 import { fetchAdminAiChat, fetchLeadAgentChatEventSource } from "@/lib/api/adminAPI";
 import { AdminChat } from "@/types/admin";
 import { useAdminStore } from "@/store/useAdminStore";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "../ui/button";
 import AgentSymbol from "../common/AgentSymbol";
+import LoadingSpinner from "../common/LoadingSpinner";
+
+interface TypingChat extends AdminChat {
+  isTyping?: boolean;
+  fullContents?: string;
+}
 
 export default function AiChatSection() {
-  const [chats, setChats] = useState<AdminChat[]>([]);
+  const [chats, setChats] = useState<TypingChat[]>([]);
   const [loading, setLoading] = useState(false);
   const selectedLeadId = useAdminStore((state) => state.selectedLeadId);
   const setSelectedRoomId = useAdminStore((state) => state.setSelectedRoomId);
   const selectedLeadName = useAdminStore((state) => state.selectedLeadName);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }, 100); // DOM 반영 시간 고려
+  };
 
   useEffect(() => {
-    if (!selectedLeadId) return;
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+        typingIntervalRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedLeadId) {
+      setChats([]);
+      return;
+    }
+
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+    setLoading(false);
 
     const fetchChatData = async () => {
       try {
         const result = await fetchAdminAiChat(selectedLeadId);
-        const chats = result.data.chats;
-        const roomId = result.data.roomId;
-        console.log("Ai chat 목록", chats);
-        setChats(chats);
-        setSelectedRoomId(roomId);
+        setChats(result.data.chats);
+        setSelectedRoomId(result.data.roomId);
+        scrollToBottom();
       } catch (error) {
-        console.error("error", error);
+        console.error("과거 채팅 내역 로드 실패:", error);
+        setChats([]);
       }
     };
 
     fetchChatData();
-  }, [selectedLeadId]);
+  }, [selectedLeadId, setSelectedRoomId]);
 
   useEffect(() => {
-    // 채팅이 업데이트될 때마다 스크롤을 맨 아래로 이동
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTo({
-        top: chatContainerRef.current.scrollHeight,
-        behavior: "smooth"
-      });
-    }
+    scrollToBottom();
   }, [chats]);
 
-  const handleStartConversation = () => {
-    if (!selectedLeadId) return;
+  const runTypingAnimation = useCallback((chatId: number, fullContents: string) => {
+    let currentText = "";
+    let i = 0;
+
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
+
+    typingIntervalRef.current = setInterval(() => {
+      if (i < fullContents.length) {
+        currentText += fullContents[i];
+        i++;
+        setChats((prevChats) =>
+          prevChats.map((chat) => (chat.id === chatId ? { ...chat, contents: currentText } : chat))
+        );
+      } else {
+        clearInterval(typingIntervalRef.current!);
+        typingIntervalRef.current = null;
+        setChats((prevChats) =>
+          prevChats.map((chat) => (chat.id === chatId ? { ...chat, isTyping: false, contents: fullContents } : chat))
+        );
+        scrollToBottom();
+      }
+    }, 30);
+  }, []);
+
+  const handleStartConversation = useCallback(() => {
+    if (!selectedLeadId || loading) return;
 
     setLoading(true);
-    const eventSource = fetchLeadAgentChatEventSource(selectedLeadId);
 
-    console.log(eventSource);
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+
+    const eventSource = fetchLeadAgentChatEventSource(selectedLeadId);
+    eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      try {
+        const data = JSON.parse(event.data);
+        const fullContents = data.contents;
 
-      const newChat: AdminChat = {
-        id: data.id,
-        fromId: data.fromId,
-        toId: data.toId,
-        fromCompanyName: data.fromCompanyName,
-        toCompanyName: data.toCompanyName,
-        contents: data.contents,
-        createdAt: data.createdAt
-      };
-      setSelectedRoomId(data.roomId);
-      setChats((prevChats) => [...prevChats, newChat]);
+        const newChat: TypingChat = {
+          id: data.id,
+          fromId: data.fromId,
+          toId: data.toId,
+          fromCompanyName: data.fromCompanyName,
+          toCompanyName: data.toCompanyName,
+          contents: "",
+          createdAt: data.createdAt,
+          isTyping: true,
+          fullContents: fullContents
+        };
+
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
+          setChats((prev) =>
+            prev.map((c) => (c.isTyping ? { ...c, isTyping: false, contents: c.fullContents ?? c.contents } : c))
+          );
+        }
+
+        setChats((prevChats) => [...prevChats, newChat]);
+
+        setTimeout(() => {
+          runTypingAnimation(newChat.id, fullContents);
+        }, 50);
+
+        setSelectedRoomId(data.roomId);
+      } catch (error) {
+        console.error("SSE 메시지 처리 오류:", error, event.data);
+      }
     };
 
     eventSource.onerror = (error) => {
-      console.error("SSE 연결 오류", error);
-      eventSource.close();
+      console.error("SSE 연결 오류:", error);
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+        typingIntervalRef.current = null;
+      }
       setLoading(false);
     };
-
-    eventSource.addEventListener("end", () => {
-      eventSource.close();
-      setLoading(false);
-    });
-  };
+  }, [selectedLeadId, loading, runTypingAnimation, setSelectedRoomId]);
 
   return (
     <section className="h-[calc(100vh-150px)] overflow-hidden rounded-lg bg-foreground p-4">
       <h2 className="mb-4 w-full text-left md:text-lg">AI 대화 내역</h2>
-      <div ref={chatContainerRef} className="h-full overflow-y-auto">
-        {chats.length === 0 && !loading ? (
+      <div ref={chatContainerRef} className="h-[calc(100%-60px)] overflow-y-auto pr-2">
+        {chats.length === 0 && !loading && (
           <div className="flex h-full flex-col items-center justify-center">
-            <Button onClick={handleStartConversation}>대화 시작</Button>
+            <Button onClick={handleStartConversation} disabled={loading}>
+              대화 시작
+            </Button>
           </div>
-        ) : (
-          chats.map((chat) => {
-            const isMyCompany = chat.fromCompanyName === selectedLeadName;
-            return (
-              <div key={chat.id} className={`flex ${isMyCompany ? "justify-end" : "justify-start"} w-full p-2`}>
-                <div className={`flex items-start gap-4 ${isMyCompany ? "flex-row-reverse" : "flex-row"}`}>
-                  <AgentSymbol />
-                  <div
-                    className={`${
-                      isMyCompany ? "bg-primary text-white" : "bg-darkgray text-foreground"
-                    } my-8 max-w-[70%] rounded-xl p-4`}
-                  >
-                    <div className="prose prose-invert max-w-none break-words text-sm prose-p:mb-2">
-                      <ReactMarkdown>{chat.contents}</ReactMarkdown>
-                    </div>
+        )}
+        {chats.map((chat) => {
+          const isMyCompany = chat.fromCompanyName === selectedLeadName;
+          return (
+            <div
+              key={`${chat.id}-${chat.createdAt}`}
+              className={`flex ${isMyCompany ? "justify-end" : "justify-start"} w-full p-2`}
+            >
+              <div className={`flex items-start gap-4 ${isMyCompany ? "flex-row-reverse" : "flex-row"}`}>
+                <AgentSymbol />
+                <div
+                  className={`${
+                    isMyCompany ? "bg-primary text-white" : "bg-darkgray text-foreground"
+                  } my-2 max-w-[70%] rounded-xl p-4`}
+                >
+                  <div className="prose prose-invert max-w-none break-words text-sm prose-p:mb-2">
+                    <ReactMarkdown>{chat.contents}</ReactMarkdown>
                   </div>
                 </div>
               </div>
-            );
-          })
-        )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
