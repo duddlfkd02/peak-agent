@@ -1,16 +1,10 @@
 import { fetchAdminAiChat, fetchLeadAgentChatEventSource } from "@/lib/api/adminAPI";
-import { AdminChat } from "@/types/admin";
+import { AdminChat, TypingChat } from "@/types/admin";
 import { useAdminStore } from "@/store/useAdminStore";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "../ui/button";
 import AgentSymbol from "../common/AgentSymbol";
-import LoadingSpinner from "../common/LoadingSpinner";
-
-interface TypingChat extends AdminChat {
-  isTyping?: boolean;
-  fullContents?: string;
-}
 
 export default function AiChatSection() {
   const [chats, setChats] = useState<TypingChat[]>([]);
@@ -105,6 +99,8 @@ export default function AiChatSection() {
     }
 
     typingIntervalRef.current = setInterval(() => {
+      if (!fullContents) return;
+
       if (i < fullContents.length) {
         currentText += fullContents[i];
         i++;
@@ -126,6 +122,7 @@ export default function AiChatSection() {
     if (!selectedLeadId || loading) return;
 
     setLoading(true);
+    // setChats([]);
 
     if (eventSourceRef.current) {
       eventSourceRef.current.close();

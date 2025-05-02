@@ -1,3 +1,4 @@
+// 순수 서버 응답 데이터
 export interface AdminChat {
   id: number;
   fromCompanyName: string;
@@ -8,8 +9,11 @@ export interface AdminChat {
   createdAt: string;
 }
 
-// AdminChat의 반환값 중 필수적으로 사용되는 부분만 정의함
-// 이후 추가 사항이 필요할 경우 아래처럼 확장해서 정의 필요
+// 상태관리 전용 확장 타입
+export interface TypingChat extends AdminChat {
+  isTyping?: boolean;
+  fullContents?: string;
+}
 
 export interface AdminChatResponse {
   message: string;
