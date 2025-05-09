@@ -39,29 +39,51 @@ export default function SankeyChart() {
   // 점수 기준 정렬
   const sortedLeads = [...leads].sort((a, b) => b.leadScore - a.leadScore);
 
-  // 상중하
-  const fromLabels = ["상위 20%", "중위 50%", "하위 30%"];
-  const toLabels = sortedLeads.map((lead) => lead.leadCompanyName);
-  const allLabels = [...fromLabels, ...toLabels];
+  // mid 노드  mock 데이터 =  index 기준으로 분류 (⭐️ 추후 api 데이터 수정 필요)
+  const getCategories = (i: number): string[] => {
+    const categories = [];
+    if (i % 2 === 0) categories.push("서비스");
+    if (i % 3 === 0) categories.push("교육");
+    if (i % 4 === 0) categories.push("IT");
+    if (categories.length === 0) categories.push("제조업");
+    return categories;
+  };
 
+  const leadWithCategory = sortedLeads.map((lead, i) => ({
+    ...lead,
+    categories: getCategories(i)
+  }));
+
+  const fromLabels = sortedLeads.map((lead) => lead.leadCompanyName);
+  const midLabels = ["IT", "서비스", "제조업", "교육"];
+  const toLabels = leadWithCategory
+    .slice()
+    .sort((a, b) => b.leadScore - a.leadScore)
+    .map((lead) => lead.leadCompanyName);
+
+  const allLabels = [...fromLabels, ...midLabels, ...toLabels];
+
+  // 화살표 흐름 구조 잡기
   const sources: number[] = [];
   const targets: number[] = [];
   const values: number[] = [];
 
-  sortedLeads.forEach((lead, index) => {
-    let groupIndex: number;
+  leadWithCategory.forEach((lead, i) => {
+    const fromIndex = i;
+    lead.categories.forEach((category) => {
+      const midIndex = fromLabels.length + midLabels.indexOf(category);
+      const toIndex = fromLabels.length + midLabels.length + toLabels.indexOf(lead.leadCompanyName);
 
-    if (index < Math.ceil(sortedLeads.length * 0.2)) {
-      groupIndex = 0;
-    } else if (index < Math.ceil(sortedLeads.length * 0.2) + Math.ceil(sortedLeads.length * 0.5)) {
-      groupIndex = 1;
-    } else {
-      groupIndex = 2;
-    }
+      // from -> mid
+      sources.push(fromIndex);
+      targets.push(midIndex);
+      values.push(toIndex);
 
-    sources.push(groupIndex);
-    targets.push(fromLabels.length + index);
-    values.push(lead.leadScore);
+      // mid -> to
+      sources.push(midIndex);
+      targets.push(toIndex);
+      values.push(lead.leadScore);
+    });
   });
 
   return (
@@ -82,15 +104,7 @@ export default function SankeyChart() {
               source: sources,
               target: targets,
               value: values,
-              color: sortedLeads.map((_, index) => {
-                if (index < Math.ceil(sortedLeads.length * 0.2)) {
-                  return "#6A31F6";
-                } else if (index < Math.ceil(sortedLeads.length * 0.2) + Math.ceil(sortedLeads.length * 0.5)) {
-                  return "#A47BFF";
-                } else {
-                  return "#E5D9FF";
-                }
-              })
+              color: values.map((v) => (v > 8 ? "#6A31F6" : v > 6 ? "#A47BFF" : "#E5D9FF"))
             }
           }
         ]}
